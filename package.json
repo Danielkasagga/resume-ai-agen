@@ -1,0 +1,26 @@
+{
+  "name": "talentloop",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5175",
+    "api": "node server/index.mjs",
+    "dev:all": "concurrently -k \"npm run api\" \"npm run dev\"",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "start": "npm run dev:all"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "dotenv": "^17.4.2",
+    "openai": "^7.8.0",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
