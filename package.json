@@ -21,6 +21,8 @@
     "vite": "latest"
   },
   "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
     "concurrently": "^9.1.2"
   }
 }

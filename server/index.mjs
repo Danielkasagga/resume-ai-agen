@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import OpenAI from 'openai'
 
 dotenv.config({ path: new URL('../.env', import.meta.url) })
-const port = Number(process.env.API_PORT || 8787)
+const port = Number(process.env.API_PORT || 8792)
 const rubric = { roleEvidence: 40, problemSolving: 30, communication: 20, collaboration: 10 }
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null
 
