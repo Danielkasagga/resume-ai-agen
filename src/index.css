@@ -181,3 +181,28 @@ textarea:focus { border-color: var(--coral); }
   .shortlist-row { grid-template-columns: 20px 34px 1fr 44px; }
   .shortlist-row .verdict-badge { display: none; }
 }
+
+/* --- Live interview --- */
+.provider-chip { color: #5d906d; font: 10px 'DM Mono'; background: #e4efe0; border: 1px solid #cfe0cc; border-radius: 3px; padding: 6px 10px; white-space: nowrap; }
+.live-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; margin-top: 16px; align-items: start; }
+.live-q { border: 1px solid var(--line); background: #fffefa; padding: 16px 18px; }
+.live-result { border: 1px solid var(--line); background: #faf8f2; padding: 16px 18px; min-height: 300px; }
+.live-placeholder { padding-top: 6px; }
+.live-placeholder .rubric-row { padding: 9px 0; }
+.ai-lists { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 10px; }
+.ai-lists > b { display: block; color: #898b85; font: 9px 'DM Mono'; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; }
+.live-grid .current-question { border-bottom: 0; padding-bottom: 14px; }
+.live-grid textarea { min-height: 120px; }
+.pending-note { color: #9a7430; background: #f4eee3; border: 1px solid #e4d6b5; padding: 9px 12px; font-size: 10px; line-height: 1.5; margin: 12px 0 0; border-radius: 3px; }
+.pending-text { color: #a0a19a; font-style: italic; }
+
+/* --- Add candidate modal --- */
+.modal-overlay { position: fixed; inset: 0; background: rgba(37, 38, 35, 0.55); display: flex; align-items: flex-start; justify-content: center; padding: 6vh 20px 20px; z-index: 50; overflow-y: auto; }
+.modal { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; width: min(640px, 100%); padding: 24px 26px; box-shadow: 0 24px 60px rgba(20, 20, 18, 0.35); }
+.modal-hint { color: var(--muted); font-size: 11px; line-height: 1.55; margin: 8px 0 4px; }
+.name-input { width: 100%; border: 1px solid var(--line); background: #fffefa; border-radius: 3px; padding: 10px 12px; color: var(--ink); font: 12px 'DM Sans'; outline: none; }
+.name-input:focus, .resume-input:focus { border-color: var(--coral); }
+.resume-input { min-height: 200px; }
+.modal-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; }
+.modal-actions-right { display: flex; align-items: center; gap: 12px; }
+.modal .recording-error { margin: 14px 0 0; }

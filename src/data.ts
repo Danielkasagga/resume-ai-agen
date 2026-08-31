@@ -31,6 +31,7 @@ export type Candidate = {
   accent: 'coral' | 'gold' | 'blue' | 'green'
   stage: string
   match: string
+  assessed: boolean
   resume: string
   highlights: string[]
   evidence: ResumeEvidence[]
@@ -159,6 +160,7 @@ export const candidates: Candidate[] = [
     accent: 'coral',
     stage: 'Interviewed',
     match: 'Strong craft + systems thinking',
+    assessed: true,
     resume: `Maya Chen — Senior Product Designer
 7 years designing complex B2B SaaS products end to end.
 
@@ -238,6 +240,7 @@ B.Des, Interaction Design — 2016`,
     accent: 'gold',
     stage: 'Interviewed',
     match: 'Excellent product intuition',
+    assessed: true,
     resume: `Jordan Ellis — Senior Product Designer
 6 years across consumer fintech and B2B products, known for product intuition.
 
@@ -318,6 +321,7 @@ BFA, Graphic Design — 2015`,
     accent: 'blue',
     stage: 'Ready to interview',
     match: 'Strong visual execution',
+    assessed: true,
     resume: `Ari Patel — Senior Product Designer
 5 years of high-craft visual and mobile product design.
 
@@ -398,6 +402,7 @@ BFA, Visual Communication — 2018`,
     accent: 'green',
     stage: 'New application',
     match: 'Good domain experience',
+    assessed: true,
     resume: `Sofia Rodriguez — Senior Product Designer
 3 years of product design grounded in 4 years of UX research; healthcare domain depth.
 
@@ -484,6 +489,106 @@ export function candidateScore(c: Candidate) {
   }
 }
 
-export function rankedCandidates(): Candidate[] {
-  return [...candidates].sort((a, b) => computeTotal(b) - computeTotal(a))
+export function rankedCandidates(list: Candidate[] = candidates): Candidate[] {
+  return [...list].sort((a, b) => computeTotal(b) - computeTotal(a))
+}
+
+// ---------------------------------------------------------------------------
+// Resume intake: deterministic, explainable parsing of a pasted resume.
+// Every requirement is marked explicit / inferred / missing from keyword
+// evidence, so the role-evidence score is fully traceable to the text.
+// ---------------------------------------------------------------------------
+const SIGNALS: Record<string, { strong: string[]; weak: string[] }> = {
+  'product-design': {
+    strong: ['product designer', 'ux designer', 'product design', 'ui/ux', 'interaction design', 'senior product'],
+    weak: ['designer', 'design', 'ux', 'ui'],
+  },
+  'end-to-end': {
+    strong: ['end to end', 'end-to-end', 'discovery', 'shipped', 'shipping', 'launch', 'from concept'],
+    weak: ['owned', 'led', 'research', 'roadmap'],
+  },
+  systems: {
+    strong: ['design system', 'component library', 'ui kit', 'design tokens', 'token-based', 'style guide'],
+    weak: ['components', 'pattern', 'reusable', 'consistency'],
+  },
+  'eng-collab': {
+    strong: ['engineer', 'engineering', 'developer', 'cross-functional', 'handoff', 'sprint', 'code review'],
+    weak: ['stakeholder', 'team', 'collaborat', 'partner'],
+  },
+  mobile: {
+    strong: ['mobile', 'ios', 'android', 'responsive'],
+    weak: ['app', 'native'],
+  },
+  prototyping: {
+    strong: ['prototype', 'prototyping', 'figma', 'usability test', 'usability testing', 'user test', 'user testing', 'a/b test', 'ab test'],
+    weak: ['wireframe', 'mockup', 'testing', 'iteration'],
+  },
+  leadership: {
+    strong: ['mentor', 'mentoring', 'managed', 'management', 'led a team', 'lead designer', 'hiring', 'performance review', 'coached'],
+    weak: ['led', 'lead', 'coach', 'guided'],
+  },
+  'b2b-saas': {
+    strong: ['b2b', 'saas', 'enterprise'],
+    weak: ['business', 'platform', 'software'],
+  },
+}
+
+function makeInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (!parts.length) return '?'
+  return parts.slice(0, 2).map((p) => p[0]?.toUpperCase() ?? '').join('')
+}
+
+export function parseResumeEvidence(resumeText: string): ResumeEvidence[] {
+  const text = resumeText.toLowerCase()
+  return requirements.map((req) => {
+    const sig = SIGNALS[req.id]
+    if (!sig) return { reqId: req.id, level: 'missing', note: 'No signal defined for this requirement.' }
+    const strong = sig.strong.filter((s) => text.includes(s))
+    const weak = sig.weak.filter((s) => text.includes(s))
+    if (strong.length > 0) {
+      return { reqId: req.id, level: 'explicit', note: `Found: ${strong.slice(0, 3).join(', ')}.` }
+    }
+    if (weak.length > 0) {
+      return { reqId: req.id, level: 'inferred', note: `Partial signal only: ${weak.slice(0, 3).join(', ')}.` }
+    }
+    return { reqId: req.id, level: 'missing', note: 'No matching evidence in the resume.' }
+  })
+}
+
+export function extractHighlights(resumeText: string): string[] {
+  const lines = resumeText
+    .split(/\n+/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 3)
+  const metricLines = lines.filter((l) => /\d|%|\$|nps|retention|conversion|adoption|\bx\b/i.test(l))
+  const picked = (metricLines.length ? metricLines : lines).slice(0, 4)
+  const capped = picked.map((l) => (l.length > 96 ? `${l.slice(0, 96)}…` : l))
+  return capped.length ? capped : ['Resume received — review the full text for details.']
+}
+
+export function buildCandidateFromResume(name: string, resumeText: string): Candidate {
+  const evidence = parseResumeEvidence(resumeText)
+  const must = requirements.filter((r) => r.must)
+  const explicitMust = must.filter((r) => evidence.find((e) => e.reqId === r.id)?.level === 'explicit').length
+  const missingMust = must.filter((r) => evidence.find((e) => e.reqId === r.id)?.level === 'missing').length
+  const accents: Candidate['accent'][] = ['coral', 'gold', 'blue', 'green']
+  return {
+    id: `custom-${Date.now()}`,
+    name: name.trim(),
+    initials: makeInitials(name),
+    accent: accents[Date.now() % accents.length],
+    stage: 'New application',
+    match: `${explicitMust} of ${must.length} must-haves explicit (parsed)`,
+    assessed: false,
+    resume: resumeText.trim(),
+    highlights: extractHighlights(resumeText),
+    evidence,
+    dim: { problemSolving: 0, communication: 0, collaboration: 0 },
+    oral: [],
+    written: '',
+    strengths: [`${explicitMust}/${must.length} must-haves evidenced explicitly in the resume`],
+    concerns: [`${missingMust} must-have(s) with no evidence detected yet`],
+    followUps: ['Complete the oral + written assessment to finalize the scorecard.'],
+  }
 }

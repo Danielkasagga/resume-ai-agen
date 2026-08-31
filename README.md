@@ -5,19 +5,20 @@ TalentLoop is a recruiting dashboard that turns a job description and candidate 
 ## How the evaluation works
 
 1. **Role requirements** — must-have vs. preferred criteria are defined up front (must-haves weigh 2× preferred).
-2. **Resume parsing** — every resume claim is marked `explicit`, `inferred`, or `missing` against each requirement, producing a 0–100 *role evidence* score.
+2. **Resume parsing** — every resume claim is marked `explicit`, `inferred`, or `missing` against each requirement, producing a 0–100 *role evidence* score. Paste or upload a resume in **Candidates → Add candidates** and it is parsed deterministically.
 3. **Assessment** — three open-ended oral questions plus one written task, each with a competency tag and the evidence a strong answer must show.
 4. **Objective rubric** — a single rubric is applied to every candidate: **Role evidence 40% · Problem solving 30% · Communication 20% · Collaboration 10%**.
-5. **Scorecards & shortlist** — per-candidate evidence, dimension scores, strengths, concerns, and follow-ups feed a ranked recommendation. The final decision always stays with a human recruiter.
+5. **Live AI interview** — run the same questions against any candidate and grade answers against the rubric. With `OPENAI_API_KEY` set this uses OpenAI; without it, deterministic demo logic kicks in.
+6. **Scorecards & shortlist** — per-candidate evidence, dimension scores, strengths, concerns, and follow-ups feed a ranked recommendation. The final decision always stays with a human recruiter.
 
 ## Views
 
 - **Overview** — role requirements, the weighted rubric, and the ranked shortlist.
-- **Candidates** — the pipeline with search/stage filters and a full per-candidate scorecard (resume highlights, requirement evidence, rubric scores, strengths, concerns, follow-ups).
-- **Interviews** — the assessment questions and each candidate's graded oral + written responses.
+- **Candidates** — the pipeline with search/stage filters, a full per-candidate scorecard, and **Add candidates** to paste/upload a real resume and have it parsed.
+- **Interviews** — the assessment questions, a **live AI interview** grading panel, and each candidate's graded oral + written responses.
 - **Scorecards** — a side-by-side matrix and the evidence-based shortlist recommendation.
 
-All demo data (role brief, four candidate resumes, answers, and grades) lives in `src/data.ts`; scores are computed deterministically from the evidence table, not hard-coded.
+The four bundled candidates in `src/data.ts` are illustrative demo data; scores are computed deterministically from the evidence table, never hard-coded.
 
 ## Run locally (development)
 
@@ -26,7 +27,7 @@ All demo data (role brief, four candidate resumes, answers, and grades) lives in
 2. Start the app:
    npm run start
 
-This runs both the backend API and the frontend together (Vite dev server with hot reload).
+This runs both the backend API and the frontend together (Vite dev server with hot reload and an `/api` proxy).
 
 ## Run in production
 
@@ -48,7 +49,7 @@ The production server serves the built `dist/` app and the `/api/*` endpoints on
 
 ## Making it ready for real candidates
 
-The dashboard ships with four illustrative demo candidates in `src/data.ts`. To use it for real hiring, replace `roleBrief`, `requirements`, `candidates` (resumes, answers, and evidence) in `src/data.ts` with your real job description and candidates — the rubric math and scorecards compute automatically from the evidence you enter.
+The dashboard ships with four illustrative demo candidates in `src/data.ts`. To use it for real hiring, replace `roleBrief`, `requirements`, `candidates` (resumes, answers, and evidence) in `src/data.ts` with your real job description and candidates — the rubric math and scorecards compute automatically from the evidence you enter. Or use **Add candidates** in the UI to paste resumes and get deterministic, explainable evidence extraction at runtime.
 
 ## Available scripts
 
@@ -64,3 +65,7 @@ The dashboard ships with four illustrative demo candidates in `src/data.ts`. To 
 - Frontend (dev): http://127.0.0.1:5175
 - Production (frontend + API, single port): http://127.0.0.1:8792
 - API (dev): http://127.0.0.1:8792
+
+## License
+
+[MIT](LICENSE)
